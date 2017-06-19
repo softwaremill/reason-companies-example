@@ -6,7 +6,15 @@ let makeSuccessJson () => {
   Js.Json.object_ json;
 };
 
+let makeFailureJson (msg: string) => {
+  let json = Js.Dict.empty ();
+  Js.Dict.set json "error" (Js.Json.string msg);
+  Js.Json.object_ json;
+};
+
 let getOpt (s: option 'a, dv: 'a) => (switch s { | Some(v) => v | _ => dv });
+
+let getOptExc (s: option 'a, exc: 'b) => (switch s { | Some(v) => v | _ => raise exc });
 
 let getDictString dict key => {
 	switch (Js.Dict.get dict key) {

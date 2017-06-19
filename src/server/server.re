@@ -77,11 +77,14 @@ App.get app path::"/companies" @@ Middleware.from (fun req res _ => {
 });
 
 App.post app path::"/companies" @@ Middleware.from (fun req res _ => {
-	let name = getDictString (Request.params req) "name";
-	let defaultName = "Company " ^ string_of_int (List.length !companies);
+	let name = getDictString (Request.query req) "name";
+	let defaultName = "Company " ^ string_of_int (List.length !companies + 1);
 	companies := [{name: getOpt(name, defaultName), employees: []}] @ !companies;
 	Response.sendJson res (makeSuccessJson())
 });
+
+exception CompanyNotFound;
+exception EmployeeFieldMissig;
 
 App.post app path::"/employees" @@ Middleware.from (fun req res _ => {
 	let reqData = Request.asJsonObject req;
@@ -90,23 +93,28 @@ App.post app path::"/employees" @@ Middleware.from (fun req res _ => {
 	| Some json => getDictString json key
 	| _ => None
 	};
-	let name = getOpt(getBody("name"), "");
-	let firstName = getOpt(getBody("firstName"), "");
-	let lastName = getOpt(getBody("lastName"), "");
-	let birthday = getOpt(getBody("birthday"), "");
-	let salary = getOpt(getBody("salary"), "0.0");
+	try {
+		let name = getOptExc(getBody("name"), CompanyNotFound);
+		let firstName = getOptExc(getBody("firstName"), EmployeeFieldMissig);
+		let lastName = getOptExc(getBody("lastName"), EmployeeFieldMissig);
+		let birthday = getOptExc(getBody("birthday"), EmployeeFieldMissig);
+		let salary = getOpt(getBody("salary"), "0.0");
 
-	let company = List.find (fun c => c.name == name) !companies;
-	companies := List.map(fun c => c.name == name ? {
-		name: company.name,
-		employees: company.employees @ [{
-			firstName: firstName,
-			lastName: lastName,
-			birthday: birthday,
-			salary: float_of_string salary
-		}]
-	} : c) !companies;
-	Response.sendJson res (makeSuccessJson());
+		let company = List.find (fun c => c.name == name) !companies;
+		companies := List.map(fun c => c.name == name ? {
+			name: company.name,
+			employees: company.employees @ [{
+				firstName: firstName,
+				lastName: lastName,
+				birthday: birthday,
+				salary: float_of_string salary
+			}]
+		} : c) !companies;
+		Response.sendJson res (makeSuccessJson());
+	} {
+	| CompanyNotFound => Response.sendJson res (makeFailureJson "Company name was not found")
+	| EmployeeFieldMissig => Response.sendJson res (makeFailureJson "One of required employee fields is missing")
+	}
 });
 
 App.useOnPath app path::"__dirname" {
