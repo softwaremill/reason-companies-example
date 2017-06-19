@@ -1,0 +1,33 @@
+{
+    "name": "reason-companies-example",
+    "version": "1.0.0",
+    "description": "example project in reason",
+    "main": "index.js",
+    "author": "Daniel Kos",
+    "license": "MIT",
+    "dependencies": {
+        "body-parser": "1.17.2",
+        "bs-express": "0.0.2",
+        "bs-platform": "1.7.5",
+        "css-loader": "0.28.4",
+        "extract-text-webpack-plugin": "2.1.2",
+        "nodemon": "1.11.0",
+        "npm-run-all": "4.0.2",
+        "purecss": "1.0.0",
+        "react": "15.6.1",
+        "react-dom": "15.6.1",
+        "reason-js": "0.3.0",
+        "reason-react": "0.1.4",
+        "style-loader": "0.18.2",
+        "webpack": "2.6.1",
+        "webpack-dev-server": "2.4.5",
+        "webpack-html-plugin": "0.1.1"
+    },
+    "scripts": {
+        "dev": "npm-run-all --parallel dev:*",
+        "dev:bsb": "npm run build:bsb -- -w",
+        "dev:webpack": "webpack-dev-server -w",
+        "build:bsb": "bsb -make-world",
+        "dev:server": "nodemon ./lib/js/src/server/server.js"
+    }
+}
