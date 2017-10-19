@@ -1,12 +1,15 @@
 {
     "name": "reason-example",
+    "bsc-flags": ["-bs-no-version-header", "-bs-super-errors", "-no-alias-deps"],
     "reason": {
-        "react-jsx": true
+        "react-jsx": 2
     },
     "bs-dependencies": [
         "reason-react",
         "reason-js",
-        "bs-express"
+        "bs-express",
+        "bs-json",
+        "bs-fetch"
     ],
     "sources": [{
         "dir": "src/model"

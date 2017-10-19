@@ -35,3 +35,33 @@ let getDictObject dict key => {
 	| _ => None
 	};
 };
+
+let str = ReasonReact.stringToElement;
+let listToElement (elements: list 'a) => ReasonReact.arrayToElement (Array.of_list elements);
+
+let contains = fun (s: string, q: string) => {
+	let ls = String.length s;
+	let lq = String.length q;
+	if (lq > ls) {
+		false;
+	} else {
+		let i = ref 0;
+		let j = ref 0;
+		while (!i + !j < ls && !j < lq) {
+			let sc = String.get s (!i + !j);
+			let qc = String.get q !j;
+
+			if (sc == qc) {
+				j := !j + 1;
+			} else {
+				i := !i + 1;
+				j := 0;
+			}
+		};
+		if (!j == lq) {
+			true;
+		} else {
+			false
+		};
+	}
+};

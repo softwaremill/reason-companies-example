@@ -1,0 +1,74 @@
+#top {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+    padding: 0 36px;
+    height: 56px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+#top #top-brand {
+    width: 160px;
+}
+
+#top #top-brand span,
+#top #top-brand a {
+    display: block;
+    background: none;
+    text-indent: -9999px;
+    width: 70px;
+    line-height: 11px;
+    background-repeat: no-repeat;
+    /* background-image: url("../img/common/logo.png"); */
+}
+
+#top ul {
+    display: flex;
+    align-items: center;
+    margin: 0;
+}
+
+#top nav li {
+    font-size: 16px;
+}
+
+#top nav span,
+#top nav a {
+    display: inline-block;
+}
+
+#top nav a {
+    color: rgba(0, 0, 0, 0.8);
+    text-decoration: none;
+}
+
+#top nav a:hover {
+    -moz-transition: all linear 0.2s;
+    transition: all linear 0.2s;
+    color: rgba(0, 0, 0, 0.6);
+    text-decoration: underline;
+}
+
+#top nav b a,
+#top nav span {
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.4);
+}
+
+#top nav b a {
+    text-decoration: underline;
+}
+
+#top nav b a:hover {
+    color: #000;
+}
+
+#top #top-nav-main {
+    padding-left: 36px;
+    /* border-left: 1px solid rgba(0, 0, 0, 0.15); */
+    width: 100%;
+}
+
+.searchBox {
+    width: 100%;
+}

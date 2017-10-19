@@ -8,20 +8,24 @@ const stats = {
 }
 
 module.exports = [{
-    entry: './lib/js/src/client',
+    entry: './src/client',
     output: {
-        filename: 'app.js',
+        filename: 'index.re',
         path: join(__dirname, 'bundle'),
         publicPath: '/',
     },
     plugins: [
         new HtmlPlugin({
             template: './index.html',
+            inject: true
         }),
         new ExtractTextPlugin("styles.css")
     ],
     module: {
         rules: [{
+            test: /\.(re|ml)$/,
+            use: 'bs-loader'
+        }, {
             test: /\.css$/,
             use: ExtractTextPlugin.extract({
                 fallback: "style-loader",
@@ -29,7 +33,9 @@ module.exports = [{
             })
         }],
     },
-    stats,
+    resolve: {
+        extensions: ['.re', '.ml', '.js']
+    },
     devServer: {
         stats
     }

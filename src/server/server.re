@@ -37,9 +37,13 @@ let employeeToJson = fun (e: employee) => {
 	json;
 };
 
+let employeesToJson = fun (employees: list employee) => {
+	Array.of_list employees 
+	|> Array.map (fun e => Js_json.object_ (employeeToJson e));
+};
+
 let companyToJson = fun (c: company) => {
-	let jsonEmployees = Array.of_list c.employees 
-		|> Array.map (fun e => Js_json.object_ (employeeToJson e));
+	let jsonEmployees = employeesToJson c.employees;
 	let json = Js_dict.empty();
 	Js_dict.set json "name" (Js_json.string c.name);
 	Js_dict.set json "employees" (Js_json.array jsonEmployees);
@@ -53,27 +57,59 @@ let setRespHeaders = fun res => {
     Response_.setHeader res "Access-Control-Allow-Headers" "X-Requested-With,content-type";
 };
 
-App.get app path::"/companies" @@ Middleware.from (fun req res _ => {
-	let name = getDictString (Request.query req) "name";
-	let firstName = getDictString (Request.query req) "firstName";
-	let lastName = getDictString (Request.query req) "lastName";
-	let birthday = getDictString (Request.query req) "birthday";
-	let salary = getDictNumber (Request.query req) "salary";
+exception CompanyNotFound;
+exception NameFieldMissing;
+exception QueryFieldMissing;
+exception EmployeeFieldMissig;
 
-	let hasEmp = fun (emps: list employee, p: employee => bool) => 
-		List.length emps == 0 || List.exists p emps;
+let getBody = fun (body, key) => switch (body) {
+	| Some json => getDictString json key
+	| _ => None
+	};
 
+App.get app path::"/companies" @@ Middleware.from (fun _req res _next => {
 	let jsonCompanies = !companies
-		|> List.filter (fun c => c.name == getOpt(name, c.name))
-		|> List.filter (fun c => hasEmp (c.employees, fun e => e.firstName == getOpt(firstName, e.firstName)))
-		|> List.filter (fun c => hasEmp (c.employees, fun e => e.lastName == getOpt(lastName, e.lastName)))
-		|> List.filter (fun c => hasEmp (c.employees, fun e => e.birthday == getOpt(birthday, e.birthday)))
-		|> List.filter (fun c => hasEmp (c.employees, fun e => e.salary == getOpt(salary, e.salary)))
 		|> Array.of_list
-		|> Array.map (fun c => Js_json.object_ (companyToJson c));
+		|> Array.map (fun c => Js.Json.string c.name);
 	
 	setRespHeaders res;
 	Response_.sendJson res (Js_json.array jsonCompanies);
+});
+
+App.get app path::"/employees" @@ Middleware.from (fun req res _ => {
+	let reqData = Request.query req;
+	let name = getOptExc(getDictString reqData "name", NameFieldMissing);
+
+	let cmps = !companies |> List.filter (fun c => c.name == name);
+
+	if (List.length cmps == 0) {
+		raise CompanyNotFound;
+	};
+	
+	let company = List.hd cmps;
+		
+	let jsonEmployees = employeesToJson company.employees;
+
+	setRespHeaders res;
+	Response_.sendJson res (Js_json.array jsonEmployees);
+});
+
+App.get app path::"/search" @@ Middleware.from (fun req res _ => {
+	let query = getOptExc(getDictString (Request.query req) "query", QueryFieldMissing);
+	
+	let names = !companies
+		|> List.map (fun c => c.employees |> List.map (fun e => c.name ^ " " ^ e.firstName ^ " " ^ e.lastName))
+		|> List.flatten;
+	
+	names |> List.iter (fun s => Js.log s);
+
+	let jsonResults = names
+		|> List.filter (fun name => contains (name, query))
+		|> Array.of_list
+		|> Array.map (fun name => Js.Json.string name);
+	
+	setRespHeaders res;
+	Response_.sendJson res (Js_json.array jsonResults);
 });
 
 App.post app path::"/companies" @@ Middleware.from (fun req res _ => {
@@ -83,22 +119,15 @@ App.post app path::"/companies" @@ Middleware.from (fun req res _ => {
 	Response.sendJson res (makeSuccessJson())
 });
 
-exception CompanyNotFound;
-exception EmployeeFieldMissig;
-
 App.post app path::"/employees" @@ Middleware.from (fun req res _ => {
 	let reqData = Request.asJsonObject req;
 	let body = getDictObject reqData "body";
-	let getBody = fun key => switch (body) {
-	| Some json => getDictString json key
-	| _ => None
-	};
 	try {
-		let name = getOptExc(getBody("name"), CompanyNotFound);
-		let firstName = getOptExc(getBody("firstName"), EmployeeFieldMissig);
-		let lastName = getOptExc(getBody("lastName"), EmployeeFieldMissig);
-		let birthday = getOptExc(getBody("birthday"), EmployeeFieldMissig);
-		let salary = getOpt(getBody("salary"), "0.0");
+		let name = getOptExc(getBody(body, "name"), CompanyNotFound);
+		let firstName = getOptExc(getBody(body, "firstName"), EmployeeFieldMissig);
+		let lastName = getOptExc(getBody(body, "lastName"), EmployeeFieldMissig);
+		let birthday = getOptExc(getBody(body, "birthday"), EmployeeFieldMissig);
+		let salary = getOpt(getBody(body, "salary"), "0.0");
 
 		let company = List.find (fun c => c.name == name) !companies;
 		companies := List.map(fun c => c.name == name ? {
@@ -116,10 +145,10 @@ App.post app path::"/employees" @@ Middleware.from (fun req res _ => {
 	| EmployeeFieldMissig => Response.sendJson res (makeFailureJson "One of required employee fields is missing")
 	}
 });
-
-App.useOnPath app path::"__dirname" {
+let statics = getOpt(__dirname, "/");
+App.useOnPath app path::statics {
     let options = Static.defaultOptions ();
     Static.make "static" options |> Static.asMiddleware
 };
 
-App.listen app port::3000;
+App.listen app port::3000 ();

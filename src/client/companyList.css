@@ -1,0 +1,17 @@
+.main {
+    padding: 20px;
+}
+
+.main ul li {
+    padding: 7px;
+    border-bottom: 2px solid white;
+}
+
+.main ul li:hover {
+    background-color: rgb(242, 242, 242);
+}
+
+.main ul li.active {
+    border-bottom: 2px solid black;
+    background-color: rgb(227, 233, 245);
+}
