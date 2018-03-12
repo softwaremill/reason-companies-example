@@ -2,5 +2,5 @@ open Employee;
 
 type company = {
 	name: string,
-	employees: list employee
+	employees: list(employee)
 };

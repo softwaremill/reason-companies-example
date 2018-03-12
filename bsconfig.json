@@ -8,19 +8,22 @@
         "reason-react",
         "reason-js",
         "bs-express",
-        "bs-json",
-        "bs-fetch"
+        "bs-fetch",
+        "@glennsl/bs-json"
     ],
+    "suffix": ".bs.js",
+    "namespace": true,
     "sources": [{
-        "dir": "src/model"
-    }, {
-        "dir": "src/client"
-    }, {
-        "dir": "src/server"
-    }, {
-        "dir": "src/utils"
-    }, {
-        "dir": "tests",
-        "type": "dev"
-    }]
+            "dir": "src",
+            "subdirs": true
+        },
+        {
+            "dir": "tests",
+            "type": "dev"
+        }
+    ],
+    "refmt": 3,
+    "warnings": {
+        "error": "+5"
+    }
 }

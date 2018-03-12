@@ -7,10 +7,13 @@ const stats = {
     modules: false,
 }
 
+const isProd = process.env.NODE_ENV === "production";
+
 module.exports = [{
-    entry: './src/client',
+    entry: './lib/bs/client/index.bs.js',
+    mode: isProd ? "production" : "development",
     output: {
-        filename: 'index.re',
+        filename: '[name].js',
         path: join(__dirname, 'bundle'),
         publicPath: '/',
     },
@@ -23,9 +26,6 @@ module.exports = [{
     ],
     module: {
         rules: [{
-            test: /\.(re|ml)$/,
-            use: 'bs-loader'
-        }, {
             test: /\.css$/,
             use: ExtractTextPlugin.extract({
                 fallback: "style-loader",
