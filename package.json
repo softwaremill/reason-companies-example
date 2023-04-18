@@ -16,7 +16,7 @@
         "css-loader": "0.28.7",
         "extract-text-webpack-plugin": "3.0.1",
         "imperavi-kube": "^6.5.2",
-        "nodemon": "1.12.1",
+        "nodemon": "1.19.4",
         "npm-run-all": "4.1.1",
         "purecss": "1.0.0",
         "react": "16.0.0",
@@ -25,7 +25,7 @@
         "reason-react": "0.2.4",
         "style-loader": "0.19.0",
         "webpack": "3.8.1",
-        "webpack-dev-server": "2.9.2",
+        "webpack-dev-server": "2.11.5",
         "webpack-html-plugin": "0.1.1"
     },
     "scripts": {
